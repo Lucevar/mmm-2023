@@ -1,68 +1,24 @@
 local this = {}
 
-local XY = tes3vector3.new(1, 1, 0)
+SFX_CELLS = {
+    ["Zete Fyr's Pocket Realm"] = true,
+    ["Tel Amur"] = true,
+    ["Tel Amur, Grotto"] = true,
+    ["Maw of Tel Amur"] = true
+}
 
-local TelAmur_GRID_ORIGIN = tes3vector2.new(-8, -10)
+VFX_CELLS = {
+    ["Zete Fyr's Pocket Realm"] = true
+}
 
-this.TELAMUR_REGION_ORIGIN = tes3vector3.new(
-    (TelAmur_GRID_ORIGIN.x + 0.5) * 8192,
-    (TelAmur_GRID_ORIGIN.y + 0.5) * 8192,
-    0
-)
-
-function this.isTelAmurInterior(cell)
-    local name = cell.name or ""
-    return name:startswith("TelAmur") or (name == "Indarys Ancestral Tomb")
-end
-
-function this.isTelAmurExterior(cell)
-    -- Our exterior grid ranges from (-7, -9) to (-9, -11)
-
-    local x = cell.gridX
-    if (x > -7) or (x < -9) then
-        return false
-    end
-
-    local y = cell.gridY
-    if (y > -9) or (y < -11) then
-        return false
-    end
-
-    return true
+---@param cell tes3cell
+function this.isTelAmurCell(cell)
+    return SFX_CELLS[cell.name]
 end
 
 ---@param cell tes3cell
----@returns boolean
-function this.isTelAmurCell(cell)
-    if cell == nil then
-        return false
-    elseif cell.isInterior then
-        return this.isTelAmurInterior(cell)
-    else
-        return this.isTelAmurExterior(cell)
-    end
-end
-
---- Distance from the center for TelAmur Region.
----
----@return number
-function this.getTelAmurDistance()
-    local cell = tes3.player.cell
-    if cell.isInterior then
-        return this.isTelAmurInterior(cell) and 0 or math.fhuge
-    else
-        return (tes3.player.position * XY):distance(this.TelAmur_REGION_ORIGIN)
-    end
-end
-
-function this.getNearbyCompanions()
-    local nearbyCompanions = {}
-    for companion in tes3.iterate(tes3.mobilePlayer.friendlyActors) do
-        if tes3.getCurrentAIPackageId(companion) == tes3.aiPackage.follow then
-            table.insert(nearbyCompanions, companion)
-        end
-    end
-    return nearbyCompanions
+function this.isTelAmurFogCell(cell)
+    return VFX_CELLS[cell.name]
 end
 
 return this
