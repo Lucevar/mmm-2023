@@ -1,10 +1,14 @@
 local this = {}
 
 SFX_CELLS = {
-    ["Zete Fyr's Pocket Realm"] = true,
     ["Tel Amur"] = true,
+    ["Tel Amur, Entrance"] = true,
+    ["Tel Amur, Grand Hall"] = true,
+    ["Tel Amur, Chambers"] = true,
+    ["Tel Amur, Upper Level"] = true,
     ["Tel Amur, Grotto"] = true,
-    ["Maw of Tel Amur"] = true
+    ["Maw of Tel Amur"] = true,
+    ["Zete Fyr's Pocket Realm"] = true
 }
 
 VFX_CELLS = {
