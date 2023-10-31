@@ -5,62 +5,84 @@ local fogId = "Tel Amur Interior"
 
 local isTelAmurFogCell = cells.isTelAmurFogCell
 
-DENSITY = 4
+local BASE_DEPTH = 128
+local FOG_COLOUR = tes3vector3.new(0.06, 0.13, 0.35)
+local MAX_DISTANCE = 24576
+
+local BLUE = {0.02, 0.123, 0.678}
+local VIOLET = {0.432, 0.354, 0.885}
+local DENSITY = 12
+
+local DURATION = 0.3
+local TOTAL_TIME = 60
+
+local lerpTimer
 
 local fogParams = {
-    color = tes3vector3.new(0.78, 0.69, 0.21),
+    color = FOG_COLOUR,
     center = tes3vector3.new(),
-    radius = tes3vector3.new(),
-    density = 60,
+    radius = tes3vector3.new(MAX_DISTANCE, MAX_DISTANCE, BASE_DEPTH),
+    density = DENSITY,
 }
 
--- Determine fog position for interiors --
-local function getFogLocation(cell)
-	local pos = { x = 0, y = 0, z = 0 }
-	local denom = 0
-	local xs, zs = {}, {}
+local function calcInteriorFogParams(colour)
 
-	for stat in cell:iterateReferences() do
-		pos.x = pos.x + stat.position.x
-		pos.z = pos.z + stat.position.z
-		table.insert(xs, stat.position.x)
-		table.insert(zs, stat.position.z)
-		denom = denom + 1
-	end
-
-	return
-		{ x = pos.x / denom, y = pos.y / denom, z = 0 },
-		{
-			width = math.abs(math.max(table.unpack(xs)) - math.min(table.unpack(xs))),
-			depth =  math.abs(math.max(table.unpack(zs)) - math.min(table.unpack(zs))),
-		}
+    local playerPos = tes3.mobilePlayer.position:copy()
+    local mistCenter = tes3vector3.new(
+        (playerPos.x),
+        (playerPos.y),
+        0
+    )
+    fogParams.center = mistCenter
+    fogParams.radius = tes3vector3.new(MAX_DISTANCE, MAX_DISTANCE, BASE_DEPTH)
+    fogParams.color = colour or FOG_COLOUR
 end
 
-local function calcInteriorFogParams(cell)
-    local fogPos, fogDim = getFogLocation(cell)
-    local depth = fogDim.depth
-    local width = fogDim.width
-    fogParams = {
-        color = tes3vector3.new(0.78, 0.69, 0.21),
-        center = tes3vector3.new(
-            fogPos.x,
-            fogPos.y,
-            fogPos.z
-		),
-        radius = tes3vector3.new(width, width, depth),
-        density = DENSITY
-    }
+
+local function setBlueVioletColor(currentTime)
+    -- Calculate the interpolation factor (t) based on currentTime
+    local t = (1 + math.sin(currentTime / TOTAL_TIME * math.pi)) / 2
+
+    debug.log(t)
+
+    -- Use math.lerp() to interpolate between blue and violet
+    local lerpedColor = tes3vector3.new(
+        math.lerp(BLUE[1], VIOLET[1], t),
+        math.lerp(BLUE[2], VIOLET[2], t),
+        math.lerp(BLUE[3], VIOLET[3], t)
+    )
+
+    -- Set the color of the element using the lerpedColor
+    calcInteriorFogParams(lerpedColor)
+    fog.createOrUpdateFog(fogId, fogParams)
 end
 
+local currentTime = 0.0
+-- Call this function in our timer callback or loop
+local function updateColor()
+    setBlueVioletColor(currentTime)
+    currentTime = (currentTime + 1) % TOTAL_TIME
+end
 
 local function update()
     local cell = tes3.getPlayerCell()
-    local isAvailable = isTelAmurFogCell(cell)
+    local isAvailable = cell and isTelAmurFogCell(cell)
     if isAvailable then
-        calcInteriorFogParams(cell)
+        calcInteriorFogParams(nil)
         fog.createOrUpdateFog(fogId, fogParams)
+        lerpTimer = timer.start({
+            duration = DURATION,
+            iterations = -1,
+            callback = function()
+                updateColor()
+            end
+        })
     else
         fog.deleteFog(fogId)
+        if (lerpTimer) and not (lerpTimer.state == timer.expired) then
+            lerpTimer:cancel()
+            lerpTimer = nil
+        end
     end
 end
 
