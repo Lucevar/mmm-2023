@@ -5,13 +5,13 @@ local fogId = "Tel Amur Interior"
 
 local isTelAmurFogCell = cells.isTelAmurFogCell
 
-local BASE_DEPTH = 128
+local BASE_DEPTH = 512
 local FOG_COLOUR = tes3vector3.new(0.06, 0.13, 0.35)
 local MAX_DISTANCE = 24576
 
 local BLUE = {0.02, 0.123, 0.678}
 local VIOLET = {0.432, 0.354, 0.885}
-local DENSITY = 12
+local DENSITY = 14
 
 local DURATION = 0.3
 local TOTAL_TIME = 60
