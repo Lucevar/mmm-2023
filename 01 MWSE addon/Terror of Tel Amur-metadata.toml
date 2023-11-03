@@ -1,0 +1,37 @@
+[package]
+name = "Terror of Tel Amur"
+description = "Adds a series of heists and a quest to investigate a mysterious new tower deep in the Molag Amur wilderness. Part of Morrowind Modding Madness 2023."
+authors = ["Juidus", "Kalinter", "Lucevar", "tewlwolow"]
+version = "1.0.0"
+homepage = "https://www.nexusmods.com/morrowind/mods/53673"
+
+
+[tools.mwse]
+lua-mod = "telamur"
+wait-until-initialize = false
+
+[dependencies]
+assets = [
+	"Meshes\\kk23",
+	"Meshes\\rv",
+	"Meshes\\vv23",
+	"Textures\\KRS",
+	"Textures\\rv",
+	"Textures\\_tx_w_dae_scimtar.dds",
+	"Textures\\tx_w_katana_daedric_grip00.dds",
+	"Textures\\telamur",
+	"Icons\\kk23",
+	"Icons\\rv",
+	"Sound\\telamur",
+	"Music\\telamur",
+	"Shaders\\XEShaders\\ta_fog_box.fx"
+]
+
+[dependencies.mwse]
+buildnumber = 3441
+
+[dependencies.mods."Terror of Tel Amur"]
+plugin = "Terror of Tel Amur.ESP"
+
+[dependencies.mge-xe]
+version = ">=0.15.0"
